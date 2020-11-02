@@ -11,6 +11,7 @@
         <module>user</module>
         <module>core</module>
         <module>store</module>
+        <module>health</module>
     </modules>
 
     <packaging>pom</packaging>
