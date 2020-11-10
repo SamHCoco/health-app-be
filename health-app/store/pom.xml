@@ -13,5 +13,13 @@
     <artifactId>store</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.samhcoco</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

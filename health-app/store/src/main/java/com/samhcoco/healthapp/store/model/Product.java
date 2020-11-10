@@ -25,5 +25,6 @@ public class Product {
     private String manufacturer;
     private String description;
     private String category;
+    private String imageUrl;
 
 }
