@@ -29,9 +29,9 @@ public class Paging {
             size = 50;
         }
 
-        val validDirections = Set.of("asc", "desc");
+        val validDirections = Set.of("ASC", "DESC");
         if (!validDirections.contains(sortBy)) {
-            direction = "desc";
+            direction = "ASC";
         }
         return PageRequest.of(page, size, Sort.Direction.valueOf(direction), sortBy);
     }

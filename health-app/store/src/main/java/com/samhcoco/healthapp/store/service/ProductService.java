@@ -1,7 +1,7 @@
 package com.samhcoco.healthapp.store.service;
 
-import com.samhcoco.healthapp.core.model.Paging;
 import com.samhcoco.healthapp.store.model.Product;
+import com.samhcoco.healthapp.store.model.ProductPaging;
 import org.springframework.data.domain.Page;
 
 public interface ProductService {
@@ -14,6 +14,6 @@ public interface ProductService {
 
     void delete(Long id);
 
-    Page<Product> findAll(Paging paging);
+    Page<Product> query(ProductPaging productPaging);
 
 }
