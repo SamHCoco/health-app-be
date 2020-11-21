@@ -1,2 +1,19 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+
 server:
   port: 8898
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth/
+
+app:
+  keycloak:
+    username: admin
+    password: admin
+    grant-type: password

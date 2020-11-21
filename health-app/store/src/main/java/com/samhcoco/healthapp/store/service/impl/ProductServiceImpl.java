@@ -53,8 +53,8 @@ public class ProductServiceImpl implements ProductService {
         val pageable = productPaging.buildRequest();
 
         val searchCriteria = productPaging.buildSearchCriteria().stream()
-                                                                .filter(Objects::nonNull)
-                                                                .collect(toList());
+                .filter(Objects::nonNull)
+                .collect(toList());
 
         val specification = new SpecificationBuilder<Product>(searchCriteria).build();
         return productRepository.findAll(specification, pageable);

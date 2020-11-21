@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class AdviceController {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> NotFoundException(String message) {
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object> NotFoundException(NotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 }
