@@ -26,13 +26,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final KeycloakService keycloakService;
-    // todo - add health service
 
     public User getUserById(@NonNull Long patientId) {
         return userRepository.findById((long) patientId);
     }
 
     public User register(@NonNull User user) {
+        // todo - remove password persistence
         user.setEnabled(true);
 
         val createdUser = userRepository.save(user);
