@@ -1,6 +1,7 @@
 package com.samhcoco.healthapp.user.service.impl;
 
 import com.samhcoco.healthapp.core.enums.KeycloakRoles;
+import com.samhcoco.healthapp.core.model.Credential;
 import com.samhcoco.healthapp.core.model.KeycloakUser;
 import com.samhcoco.healthapp.core.model.User;
 import com.samhcoco.healthapp.core.repository.UserRepository;
@@ -35,10 +36,10 @@ public class UserServiceImpl implements UserService {
         user.setEnabled(true);
 
         val createdUser = userRepository.save(user);
-        val credentials = KeycloakUser.Credential.builder()
-                .temporary(false)
-                .value(user.getPassword())
-                .build();
+        val credentials = Credential.builder()
+                                                .temporary(false)
+                                                .value(user.getPassword())
+                                                .build();
 
         var keycloakUser = KeycloakUser.builder()
                 .email(user.getEmail())

@@ -25,13 +25,4 @@ public class KeycloakUser {
     private Integer createdTimestamp;
     private Map<String, String> attributes;
     private List<Credential> credentials;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Credential {
-        private boolean temporary;
-        private String value;
-    }
 }
