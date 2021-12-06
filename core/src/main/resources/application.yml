@@ -14,11 +14,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  h2:
+    console:
+      enabled: true
 
 keycloak:
   realm: master
   resource: health-app
   ssl-required: external
+  enable-cors: true
 
 app:
   keycloak:
