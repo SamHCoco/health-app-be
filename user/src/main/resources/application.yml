@@ -29,6 +29,7 @@ keycloak:
   resource: health-app
   public-client: true
   ssl-required: external
+  cors: true
 
 app:
   keycloak:

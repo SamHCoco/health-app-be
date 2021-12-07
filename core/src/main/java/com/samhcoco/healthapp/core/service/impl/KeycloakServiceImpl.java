@@ -99,6 +99,42 @@ public class KeycloakServiceImpl implements KeycloakService {
         return null;
     }
 
+    @Override
+    @Deprecated
+    public KeycloakToken getAccessToken(@NonNull String username,@NonNull String password) {
+        // todo - remove
+        val url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .path("realms/")
+                .path(realm)
+                .path("/protocol")
+                .path("/openid-connect")
+                .path("/token")
+                .toUriString();
+
+        val headers = new HttpHeaders();
+
+        headers.setContentType(APPLICATION_FORM_URLENCODED);
+
+        val body = new LinkedMultiValueMap<String, String>();
+
+        body.add("client_id", clientName);
+        body.add("username", username);
+        body.add("password", password);
+        body.add("grant_type", grantType);
+
+
+        val request = new HttpEntity<LinkedMultiValueMap<String, String>>(body, headers);
+        val response = restTemplate.exchange(url, POST, request, KeycloakToken.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            val error = response.getStatusCode().getReasonPhrase();
+            log.error("Failed to get Keycloak user Access Token: " + error);
+        }
+        return null;
+    }
+
     public KeycloakUser create(@NonNull KeycloakUser user) {
         val url = format("%sadmin/realms/%s/users", baseUrl, realm);
 

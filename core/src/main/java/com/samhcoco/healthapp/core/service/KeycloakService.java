@@ -18,6 +18,14 @@ public interface KeycloakService {
     KeycloakToken getAdminAccessToken();
 
     /**
+     * Returns a user {@link KeycloakToken}.
+     * @param username Username.
+     * @param password Password.
+     * @return {@link KeycloakToken}.
+     */
+    KeycloakToken getAccessToken(String username, String password);
+
+    /**
      * Creates a {@link KeycloakUser}.
      * @param user The {@link KeycloakUser}.
      * @return The created {@link KeycloakUser}.
