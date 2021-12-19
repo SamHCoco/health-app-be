@@ -14,6 +14,6 @@ spring:
 
 keycloak:
   realm: master
-  resource: health-app
+  resource: health-app-be
   public-client: true
   ssl-required: external

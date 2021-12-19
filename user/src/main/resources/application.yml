@@ -26,8 +26,7 @@ eureka:
 keycloak:
   realm: master
   auth-server-url: http://localhost:8080/auth/
-  resource: health-app
-  public-client: true
+  resource: health-app-be
   ssl-required: external
   cors: true
 
@@ -36,3 +35,4 @@ app:
     username: admin
     password: admin
     grant-type: password
+    secret: 1def243e-dab4-426e-991f-7f1af13c50c1

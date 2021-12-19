@@ -20,8 +20,9 @@ spring:
 
 keycloak:
   realm: master
-  resource: health-app
+  resource: health-app-be
   ssl-required: external
+  public-client: true
   enable-cors: true
 
 app:

@@ -1,9 +1,6 @@
 package com.samhcoco.healthapp.core.service;
 
-import com.samhcoco.healthapp.core.model.KeycloakClient;
-import com.samhcoco.healthapp.core.model.KeycloakRole;
-import com.samhcoco.healthapp.core.model.KeycloakToken;
-import com.samhcoco.healthapp.core.model.KeycloakUser;
+import com.samhcoco.healthapp.core.model.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -23,7 +20,7 @@ public interface KeycloakService {
      * @param password Password.
      * @return {@link KeycloakToken}.
      */
-    KeycloakToken getAccessToken(String username, String password);
+    ResponseEntity<KeycloakToken> getAccessToken(String username, String password);
 
     /**
      * Creates a {@link KeycloakUser}.
@@ -60,7 +57,6 @@ public interface KeycloakService {
      */
     ResponseEntity<String> initialize();
 
-
     /**
      * Creates an token attribute that may be mapped to a user.
      * @param claimName The attribute name.
@@ -72,5 +68,9 @@ public interface KeycloakService {
 
 
     List<KeycloakClient> listClients();
+
+    ResponseEntity<KeycloakTokenInfo> getTokenInformation(String accessToken);
+
+
 
 }

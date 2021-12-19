@@ -15,7 +15,7 @@ spring:
 keycloak:
   realm: master
   auth-server-url: http://localhost:8080/auth/
-  resource: health-app
+  resource: health-app-be
   public-client: true
   ssl-required: external
 

@@ -1,18 +1,18 @@
 package com.samhcoco.healthapp.core.service.impl;
 
-import com.samhcoco.healthapp.core.model.KeycloakClient;
-import com.samhcoco.healthapp.core.model.KeycloakRole;
-import com.samhcoco.healthapp.core.model.KeycloakToken;
-import com.samhcoco.healthapp.core.model.KeycloakUser;
+import com.samhcoco.healthapp.core.model.*;
 import com.samhcoco.healthapp.core.service.KeycloakService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,6 +29,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 @Slf4j
@@ -50,6 +51,9 @@ public class KeycloakServiceImpl implements KeycloakService {
 
     @Value("${app.keycloak.grant-type}")
     private String grantType;
+
+    @Value("${app.keycloak.secret}")
+    private String secret;
 
     @Value("${keycloak.auth-server-url}")
     private String baseUrl;
@@ -101,7 +105,7 @@ public class KeycloakServiceImpl implements KeycloakService {
 
     @Override
     @Deprecated
-    public KeycloakToken getAccessToken(@NonNull String username,@NonNull String password) {
+    public ResponseEntity<KeycloakToken> getAccessToken(@NonNull String username,@NonNull String password) {
         // todo - remove
         val url = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("realms/")
@@ -118,21 +122,41 @@ public class KeycloakServiceImpl implements KeycloakService {
         val body = new LinkedMultiValueMap<String, String>();
 
         body.add("client_id", clientName);
+        body.add("client_secret", secret);
         body.add("username", username);
         body.add("password", password);
         body.add("grant_type", grantType);
 
-
-        val request = new HttpEntity<LinkedMultiValueMap<String, String>>(body, headers);
-        val response = restTemplate.exchange(url, POST, request, KeycloakToken.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        } else {
-            val error = response.getStatusCode().getReasonPhrase();
-            log.error("Failed to get Keycloak user Access Token: " + error);
+        val request = new HttpEntity<>(body, headers);
+        try {
+            return restTemplate.exchange(url, POST, request, KeycloakToken.class);
+        } catch (Exception e) {
+            log.error("Failed to get access token for user {}: {}", username, e.getMessage());
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR);
         }
-        return null;
+    }
+
+    // http://localhost:8080/auth/realms/master/protocol/openid-connect/token/introspect
+    @Override
+    public ResponseEntity<KeycloakTokenInfo> getTokenInformation(@NonNull String accessToken) {
+        val url = format("%srealms/%s/protocol/openid-connect/token/introspect", baseUrl, realm);
+
+        val headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_FORM_URLENCODED);
+
+        val body = new LinkedMultiValueMap<String, String>();
+        body.add("token", accessToken);
+        body.add("client_id", clientName);
+        body.add("client_secret", secret);
+
+        val request = new HttpEntity<>(body, headers);
+        try {
+            return restTemplate.exchange(url, POST, request, KeycloakTokenInfo.class);
+        } catch (Exception e) {
+            val tokenInfo = new KeycloakTokenInfo();
+            tokenInfo.setError(e.getMessage());
+            return new ResponseEntity<>(tokenInfo, INTERNAL_SERVER_ERROR);
+        }
     }
 
     public KeycloakUser create(@NonNull KeycloakUser user) {
