@@ -13,6 +13,7 @@ import lombok.val;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -49,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    public Page<Product> query(@NonNull ProductPaging productPaging) {
+    public Page<Product> search(@NonNull ProductPaging productPaging) {
         val pageable = productPaging.buildRequest();
 
         val searchCriteria = productPaging.buildSearchCriteria().stream()
@@ -58,5 +59,10 @@ public class ProductServiceImpl implements ProductService {
 
         val specification = new SpecificationBuilder<Product>(searchCriteria).build();
         return productRepository.findAll(specification, pageable);
+    }
+
+    @Override
+    public List<Product> listAll() {
+        return productRepository.findAll();
     }
 }

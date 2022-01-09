@@ -4,6 +4,8 @@ import com.samhcoco.healthapp.store.model.Product;
 import com.samhcoco.healthapp.store.model.ProductPaging;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface ProductService {
 
     Product getById(Long id);
@@ -14,6 +16,8 @@ public interface ProductService {
 
     void delete(Long id);
 
-    Page<Product> query(ProductPaging productPaging);
+    List<Product> listAll();
+
+    Page<Product> search(ProductPaging productPaging);
 
 }

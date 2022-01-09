@@ -17,3 +17,4 @@ app:
     username: admin
     password: admin
     grant-type: password
+    secret: 1def243e-dab4-426e-991f-7f1af13c50c1
