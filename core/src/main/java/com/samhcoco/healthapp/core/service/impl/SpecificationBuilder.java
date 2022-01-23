@@ -31,7 +31,7 @@ public class SpecificationBuilder<T> {
         return (Specification<T>) (root, query, builder) -> {
             switch (operation) {
                 case ">":
-                    builder.greaterThan(root.get(field), value);
+                    return builder.greaterThan(root.get(field), value);
                 case ">=":
                     return builder.greaterThanOrEqualTo(root.get(field), value);
                 case "==":

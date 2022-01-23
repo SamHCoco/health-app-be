@@ -1,7 +1,7 @@
 package com.samhcoco.healthapp.store.service;
 
 import com.samhcoco.healthapp.store.model.Product;
-import com.samhcoco.healthapp.store.model.ProductPaging;
+import com.samhcoco.healthapp.store.model.ProductPage;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -18,6 +18,8 @@ public interface ProductService {
 
     List<Product> listAll();
 
-    Page<Product> search(ProductPaging productPaging);
+    Page<Product> findAll(ProductPage productPage);
+
+    Page<Product> search(ProductPage productPaging);
 
 }

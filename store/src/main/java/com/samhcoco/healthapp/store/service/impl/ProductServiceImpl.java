@@ -3,7 +3,7 @@ package com.samhcoco.healthapp.store.service.impl;
 import com.samhcoco.healthapp.core.exception.NotFoundException;
 import com.samhcoco.healthapp.core.service.impl.SpecificationBuilder;
 import com.samhcoco.healthapp.store.model.Product;
-import com.samhcoco.healthapp.store.model.ProductPaging;
+import com.samhcoco.healthapp.store.model.ProductPage;
 import com.samhcoco.healthapp.store.repository.ProductRepository;
 import com.samhcoco.healthapp.store.service.ProductService;
 import lombok.NonNull;
@@ -50,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    public Page<Product> search(@NonNull ProductPaging productPaging) {
+    public Page<Product> search(@NonNull ProductPage productPaging) {
         val pageable = productPaging.buildRequest();
 
         val searchCriteria = productPaging.buildSearchCriteria().stream()
@@ -62,7 +62,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<Product> findAll(@NonNull ProductPage productPage) {
+        return productRepository.findAll(productPage.buildRequest());
+    }
+
+    @Override
     public List<Product> listAll() {
         return productRepository.findAll();
     }
+
+
 }
