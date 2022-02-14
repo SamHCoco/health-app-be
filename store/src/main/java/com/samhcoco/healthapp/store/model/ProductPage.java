@@ -1,6 +1,6 @@
 package com.samhcoco.healthapp.store.model;
 
-import com.samhcoco.healthapp.core.model.Paging;
+import com.samhcoco.healthapp.core.model.Page;
 import com.samhcoco.healthapp.core.model.SearchCriteria;
 import lombok.*;
 
@@ -15,7 +15,7 @@ import static org.springframework.util.StringUtils.hasText;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ProductPaging extends Paging {
+public class ProductPage extends Page {
 
     private Float price;
     private String priceOperation;

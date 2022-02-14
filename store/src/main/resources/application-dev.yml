@@ -18,3 +18,4 @@ app:
     password: admin
     grant-type: password
     secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f
+
