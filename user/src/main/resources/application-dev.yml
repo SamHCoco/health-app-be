@@ -1,2 +1,18 @@
 server:
   port: 8899
+
+base:
+  uri: http://localhost:8890
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: shcoco.generic@gmail.com
+    password: svkpxlbrjcuxalon
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

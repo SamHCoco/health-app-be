@@ -13,27 +13,41 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.OK;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/user")
 @Slf4j
 public class UserController {
+
+    private static final String V1 = "api/v1/user";
 
     private final UserService userService;
     private final KeycloakService keycloakService;
 
-    @GetMapping("{id}")
+    @GetMapping(V1 + "/{id}")
     public User getUserId(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
-    @PostMapping("register")
+    @PostMapping(V1 + "/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         val registered = userService.register(user);
-        return new ResponseEntity<>(registered, HttpStatus.OK);
+        return new ResponseEntity<>(registered, OK);
     }
 
-    @PostMapping("token-info")
+    @PostMapping(V1 + "/{id}/verify")
+    public ResponseEntity<Object> verify(@RequestParam String code,
+                                         @PathVariable Long id) {
+        val action = userService.verify(code, id);
+        if (action.isSuccess()) {
+            return new ResponseEntity<>(OK);
+        }
+        return new ResponseEntity<>(BAD_REQUEST);
+    }
+
+    @PostMapping(V1 + "/token-info")
     public ResponseEntity<KeycloakTokenInfo> getTokenInformation(@RequestBody KeycloakToken token) {
         // todo - remove variable
         val isAuthenticated = keycloakService.getTokenInformation(token.getAccessToken());
@@ -42,7 +56,7 @@ public class UserController {
     }
 
     @Deprecated
-    @PostMapping("token")
+    @PostMapping(V1 + "/token")
     public ResponseEntity<KeycloakToken> getUserAccessToken(@RequestBody LoginCredential credential) {
         // todo - remove
         return keycloakService.getAccessToken(credential.getUsername(), credential.getPassword());
