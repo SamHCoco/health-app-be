@@ -52,7 +52,7 @@ public interface KeycloakService {
     ResponseEntity<String> delete(String userId);
 
     /**
-     * Initialises the keycloak client for the application if does not exists.
+     * Initialises the keycloak client for the application if does not exist.
      * @return A {@link ResponseEntity}
      */
     ResponseEntity<String> initialize();
@@ -70,6 +70,10 @@ public interface KeycloakService {
     List<KeycloakClient> listClients();
 
     ResponseEntity<KeycloakTokenInfo> getTokenInformation(String accessToken);
+
+    KeycloakUser getUser(String id);
+
+    KeycloakUser updateUser(KeycloakUser user);
 
 
 

@@ -2,7 +2,10 @@ server:
   port: 8899
 
 base:
-  uri: http://localhost:8890
+  uri: http://localhost:8763/user-service
+
+api:
+  version: api/v1
 
 spring:
   mail:
@@ -14,5 +17,5 @@ spring:
       mail:
         smtp:
           auth: true
-          starttls:
-            enable: true
+#          starttls:
+#            enable: true

@@ -1,4 +1,4 @@
-package com.samhcoco.healthapp.core.beans;
+package com.samhcoco.healthapp.core.configuration;
 
 import lombok.val;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;

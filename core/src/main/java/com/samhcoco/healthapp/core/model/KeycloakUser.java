@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class KeycloakUser {
+public class KeycloakUser implements Serializable {
     private String id;
     private String username;
     private String firstName;
@@ -22,7 +23,7 @@ public class KeycloakUser {
     private Map<String, List<String>> clientRoles;
     private Boolean enabled;
     private Boolean emailVerified;
-    private Integer createdTimestamp;
-    private Map<String, String> attributes;
+    private Long createdTimestamp;
+    private Map<String, Object> attributes;
     private List<Credential> credentials;
 }

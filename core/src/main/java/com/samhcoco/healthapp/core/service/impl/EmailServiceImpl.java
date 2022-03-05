@@ -33,7 +33,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(message.getSender());
             helper.setTo(message.getRecipient());
             helper.setSubject(message.getSubject());
-            helper.setText(message.getBody());
+            helper.setText(message.getBody(), true);
 
             log.info("Attempting to send email to '{}'.", message.getRecipient());
             emailSender.send(mimeMessage);

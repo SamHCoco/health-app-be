@@ -37,7 +37,7 @@ public class UserController {
         return new ResponseEntity<>(registered, OK);
     }
 
-    @PostMapping(V1 + "/{id}/verify")
+    @GetMapping(V1 + "/{id}/verify")
     public ResponseEntity<Object> verify(@RequestParam String code,
                                          @PathVariable Long id) {
         val action = userService.verify(code, id);

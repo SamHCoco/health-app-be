@@ -1,5 +1,6 @@
 package com.samhcoco.healthapp.core.service.impl;
 
+import com.google.gson.Gson;
 import com.samhcoco.healthapp.core.model.*;
 import com.samhcoco.healthapp.core.service.KeycloakService;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -59,6 +61,7 @@ public class KeycloakServiceImpl implements KeycloakService {
     private String baseUrl;
 
     private final RestTemplate restTemplate;
+    private final Gson gson;
 
     @PostConstruct
     public void setup () {
@@ -367,5 +370,47 @@ public class KeycloakServiceImpl implements KeycloakService {
         }
         log.error(format("Failed to get clients for realm '%s': %s", realm, response.getStatusCode().getReasonPhrase()));
         return emptyList();
+    }
+
+    // GET auth/admin/{realm}/users/{id}
+    @Override
+    public KeycloakUser getUser(@NonNull String id) {
+        val url = format("%sadmin/realms/%s/users/%s", baseUrl, realm, id);
+        val token = getAdminAccessToken();
+
+        val headers = new HttpHeaders();
+        headers.setBearerAuth(token.getAccessToken());
+
+        val request = new HttpEntity<>(headers);
+        try {
+            val response = restTemplate.exchange(url, GET, request, KeycloakUser.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.debug("Failed to get Keycloak user with ID {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    // PUT auth/admin/{realm}/users/{id}
+    @Override
+    public KeycloakUser updateUser(@NonNull KeycloakUser user) {
+        val url = format("%sadmin/realms/%s/users/%s", baseUrl, realm, user.getId());
+
+        val token = getAdminAccessToken();
+        val headers = new HttpHeaders();
+
+        headers.setBearerAuth(token.getAccessToken());
+
+        val request = new HttpEntity<>(user, headers);
+        try {
+            val response = restTemplate.exchange(url, PUT, request, KeycloakUser.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return user;
+            }
+        } catch (RestClientResponseException e) {
+            log.debug("Failed to updated Keycloak user with ID {}: {}", user.getId(), e.getMessage());
+            return null;
+        }
+        return null;
     }
 }
