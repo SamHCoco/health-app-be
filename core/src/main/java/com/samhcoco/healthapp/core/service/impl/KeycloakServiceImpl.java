@@ -68,19 +68,19 @@ public class KeycloakServiceImpl implements KeycloakService {
         try {
             initialize();
         } catch (HttpClientErrorException e) {
-            log.debug(format("Attempted to create Keycloak client '%s' - no action required - This client already exists.", clientName));
+            log.debug(format("Attempted to create Keycloak client '%s' - this client may already exist.", clientName));
         }
     }
 
     @Override
     public KeycloakToken getAdminAccessToken() {
         val url = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .path("realms/")
-                .path(realm)
-                .path("/protocol")
-                .path("/openid-connect")
-                .path("/token")
-                .toUriString();
+                                            .path("realms/")
+                                            .path(realm)
+                                            .path("/protocol")
+                                            .path("/openid-connect")
+                                            .path("/token")
+                                            .toUriString();
 
         val headers = new HttpHeaders();
 
@@ -93,15 +93,14 @@ public class KeycloakServiceImpl implements KeycloakService {
         body.add("password", password);
         body.add("grant_type", grantType);
 
-
         val request = new HttpEntity<LinkedMultiValueMap<String, String>>(body, headers);
-        val response = restTemplate.exchange(url, POST, request, KeycloakToken.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        } else {
-            val error = response.getStatusCode().getReasonPhrase();
-            log.error("Failed to get Keycloak Admin Access Token: " + error);
+        try {
+            val response = restTemplate.exchange(url, POST, request, KeycloakToken.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            }
+        } catch (RestClientResponseException e) {
+            log.error("Failed to get Keycloak Admin Access Token: {}", e.getMessage());
         }
         return null;
     }
@@ -111,12 +110,12 @@ public class KeycloakServiceImpl implements KeycloakService {
     public ResponseEntity<KeycloakToken> getAccessToken(@NonNull String username,@NonNull String password) {
         // todo - remove
         val url = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .path("realms/")
-                .path(realm)
-                .path("/protocol")
-                .path("/openid-connect")
-                .path("/token")
-                .toUriString();
+                                            .path("realms/")
+                                            .path(realm)
+                                            .path("/protocol")
+                                            .path("/openid-connect")
+                                            .path("/token")
+                                            .toUriString();
 
         val headers = new HttpHeaders();
 
@@ -139,7 +138,6 @@ public class KeycloakServiceImpl implements KeycloakService {
         }
     }
 
-    // http://localhost:8080/auth/realms/master/protocol/openid-connect/token/introspect
     @Override
     public ResponseEntity<KeycloakTokenInfo> getTokenInformation(@NonNull String accessToken) {
         val url = format("%srealms/%s/protocol/openid-connect/token/introspect", baseUrl, realm);
@@ -162,6 +160,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         }
     }
 
+    @Override
     public KeycloakUser create(@NonNull KeycloakUser user) {
         val url = format("%sadmin/realms/%s/users", baseUrl, realm);
 
@@ -171,25 +170,24 @@ public class KeycloakServiceImpl implements KeycloakService {
         headers.setBearerAuth(token.getAccessToken());
 
         val request = new HttpEntity<>(user, headers);
-        val response = restTemplate.exchange(url, POST, request, KeycloakUser.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            val location = response.getHeaders().getLocation();
-
-            // get created keycloak user id
-            if (!isNull(location)) {
-                val uri = location.toString().split("/");
-                user.setId(uri[uri.length - 1]);
+        try {
+            val response = restTemplate.exchange(url, POST, request, KeycloakUser.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                val location = response.getHeaders().getLocation();
+                if (nonNull(location)) {
+                    val uri = location.toString().split("/");
+                    user.setId(uri[uri.length - 1]);
+                }
+                log.debug("Successfully created '{}'", user);
+                return user;
             }
-
-            log.debug("Successfully created " + user + ".");
-            return user;
+        } catch (RestClientResponseException e) {
+            log.error("Failed to create {}: {}", user, e.getMessage());
         }
-        log.error("Failed to create " + user);
         return null;
     }
 
-    // POST http://localhost:8180/auth/admin/realms/{realm}/users/{userId}/role-mappings/realm
+    @Override
     public ResponseEntity<String> assignRoles(@NonNull String userId, @NonNull Set<String> roles) {
         val url = format("%sadmin/realms/%s/users/%s/role-mappings/realm", baseUrl, realm, userId);
 
@@ -199,22 +197,23 @@ public class KeycloakServiceImpl implements KeycloakService {
         headers.setBearerAuth(token.getAccessToken());
 
         val targetRoles = listAvailableRoles(userId).stream()
-                .filter(role -> roles.contains(role.getName()))
-                .collect(toList());
+                                                        .filter(role -> roles.contains(role.getName()))
+                                                        .collect(toList());
 
         val request = new HttpEntity<>(targetRoles, headers);
-        val response = restTemplate.exchange(url, POST, request, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            log.debug("Keycloak user with ID '%s' successfully assigned roles " + roles);
-            return response;
+        try {
+            val response = restTemplate.exchange(url, POST, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.debug("Keycloak user with ID '%s' successfully assigned roles " + roles);
+                return response;
+            }
+        } catch (RestClientResponseException e) {
+            log.error("Failed to assign Keycloak user with ID '{}' roles {}: {}", userId, roles, e.getMessage());
         }
-        log.error("Failed to assigned Keycloak user with ID '%s' roles " + roles);
-        return response;
+        return null;
     }
 
-
-    // GET http://localhost:8280/auth/admin/realms/{realm}/users/{userId}/role-mappings/realm/available
+    @Override
     public List<KeycloakRole> listAvailableRoles(@NonNull String userId) {
         val url = format("%sadmin/realms/%s/users/%s/role-mappings/realm/available", baseUrl, realm, userId);
 
@@ -237,7 +236,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         return emptyList();
     }
 
-    // DELETE http://localhost:8180/auth/admin/realms/heroes/users/83c72e88-7ac9-4fc7-a7fb-97736d67d261
+    @Override
     public ResponseEntity<String> delete(@NonNull String userId) {
         val url = format("%sadmin/auth/admin/realms/projects/users/%s", baseUrl, userId);
 
@@ -247,16 +246,19 @@ public class KeycloakServiceImpl implements KeycloakService {
         headers.setBearerAuth(token.getAccessToken());
 
         val request = new HttpEntity<>(null, headers);
-        val response = restTemplate.exchange(url, DELETE, request, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            log.debug("Successfully deleted Keycloak user with ID " + userId);
-            return response;
+        try {
+            val response = restTemplate.exchange(url, DELETE, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully deleted Keycloak user with ID '{}'", userId);
+                return response;
+            }
+        } catch (RestClientResponseException e) {
+            log.error("Failed to delete Keycloak user with ID '{}': {}", userId, e.getMessage());
         }
-        log.error("Failed to delete Keycloak user with ID " + userId);
-        return response;
+        return null;
     }
 
+    @Override
     public ResponseEntity<String> initialize() throws HttpClientErrorException {
         val headers = new HttpHeaders();
         val token = getAdminAccessToken();
@@ -264,57 +266,60 @@ public class KeycloakServiceImpl implements KeycloakService {
         headers.setBearerAuth(token.getAccessToken());
 
         var client = KeycloakClient.builder()
-                .clientId(clientName)
-                .name(clientName)
-                .implicitFlowEnabled(true)
-                .directAccessGrantsEnabled(true)
-                .publicClient(true)
-                .redirectUris(List.of("http://localhost:8899/*"))
-                .build();
+                                            .clientId(clientName)
+                                            .name(clientName)
+                                            .implicitFlowEnabled(true)
+                                            .directAccessGrantsEnabled(true)
+                                            .publicClient(true)
+                                            .redirectUris(List.of("http://localhost:8899/*"))
+                                            .build();
 
         var url = format("%sadmin/realms/%s/clients", baseUrl, realm);
 
         var request = new HttpEntity<>(client, headers);
-        var response = restTemplate.exchange(url, POST, request, String.class);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            log.debug("Successfully initialized Keycloak client '" + clientName + "'");
-        } else {
-            log.error("Failed to initialize Keycloak client '" + clientName + "'");
-            return response;
+        try {
+            var response = restTemplate.exchange(url, POST, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully initialized Keycloak client '" + clientName + "'");
+            }
+        } catch (RestClientResponseException e) {
+            log.error("Failed to initialize Keycloak client '{}' : '{}'", clientName, e.getMessage());
+            return null;
         }
 
         client = listClients().stream()
-                .filter(keycloakClient -> keycloakClient.getClientId().equals(clientName))
-                .findFirst()
-                .orElse(null);
+                            .filter(keycloakClient -> keycloakClient.getClientId().equals(clientName))
+                            .findFirst()
+                            .orElse(null);
 
         if (nonNull(client)) {
             createUserAttribute("userId", "long", client.getId());
         }
 
         val userRole = KeycloakRole.builder()
-                .name(USER.name().toLowerCase())
-                .clientRole(true)
-                .composite(false)
-                .containerId(realm)
-                .build();
+                                        .name(USER.name().toLowerCase())
+                                        .clientRole(true)
+                                        .composite(false)
+                                        .containerId(realm)
+                                        .build();
 
-        // POST http://localhost:8280/auth/admin/realms/master/roles
         url = format("%sadmin/realms/master/roles", baseUrl);
 
         request = new HttpEntity(userRole, headers);
-        response = restTemplate.exchange(url, POST, request, String.class);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            log.debug(format("Successfully initialized Keycloak role '%s' for realm '%s'", USER.name().toLowerCase(), realm));
-        } else {
+        try {
+            val response = restTemplate.exchange(url, POST, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully initialized Keycloak role '{}' for realm '{}'", USER.name().toLowerCase(), realm);
+            }
+            return response;
+        } catch (RestClientResponseException e) {
             log.error(format("Failed to initialize Keycloak role '%s' for realm '%s'", USER.name().toLowerCase(), realm));
+            return null;
         }
-        return response;
     }
 
-    // http://localhost:8280/auth/admin/realms/projects/clients/18aaf131-7bd4-4bde-99e1-5b9d91bc9de3/protocol-mappers/models
     @Override
     public ResponseEntity<String> createUserAttribute(@NonNull String claimName,
                                                       @NonNull String type,
@@ -341,15 +346,18 @@ public class KeycloakServiceImpl implements KeycloakService {
         val url = format("%sadmin/realms/%s/clients/%s/protocol-mappers/models", baseUrl, realm, clientId);
 
         val request = new HttpEntity(mapper, header);
-        val response = restTemplate.exchange(url, POST, request, String.class);
-
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            log.debug("Failed created Protocol Mapping for token claim: " + claimName);
+        try {
+            val response = restTemplate.exchange(url, POST, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully created User Attribute '{} - {}' for Keycloak client '{}'", claimName, type, clientId);
+            }
+            return response;
+        } catch (RestClientResponseException e) {
+            log.error("Failed to create User Attribute {} for Keycloak client {}: {}", claimName, clientId, e.getMessage());
+            return null;
         }
-        return response;
     }
 
-    // http://localhost:8080/auth/admin/realms/master/clients
     @Override
     public List<KeycloakClient> listClients() {
         val token = getAdminAccessToken();
@@ -360,19 +368,20 @@ public class KeycloakServiceImpl implements KeycloakService {
         val url = format("%sadmin/realms/%s/clients", baseUrl, realm);
 
         val request = new HttpEntity<>(null, headers);
-        val response = restTemplate.exchange(url, GET, request, KeycloakClient[].class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            val body = response.getBody();
-            if (nonNull(body)) {
-                return Arrays.stream(body).collect(toList());
+        try {
+            val response = restTemplate.exchange(url, GET, request, KeycloakClient[].class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                val body = response.getBody();
+                if (nonNull(body)) {
+                    return Arrays.stream(body).collect(toList());
+                }
             }
+        } catch (RestClientResponseException e) {
+            log.error("Failed to get clients for realm '{}': {}", realm, e.getMessage());
         }
-        log.error(format("Failed to get clients for realm '%s': %s", realm, response.getStatusCode().getReasonPhrase()));
         return emptyList();
     }
 
-    // GET auth/admin/{realm}/users/{id}
     @Override
     public KeycloakUser getUser(@NonNull String id) {
         val url = format("%sadmin/realms/%s/users/%s", baseUrl, realm, id);
@@ -385,13 +394,12 @@ public class KeycloakServiceImpl implements KeycloakService {
         try {
             val response = restTemplate.exchange(url, GET, request, KeycloakUser.class);
             return response.getBody();
-        } catch (Exception e) {
-            log.debug("Failed to get Keycloak user with ID {}: {}", id, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("Failed to get Keycloak user with ID {}: {}", id, e.getMessage());
             return null;
         }
     }
 
-    // PUT auth/admin/{realm}/users/{id}
     @Override
     public KeycloakUser updateUser(@NonNull KeycloakUser user) {
         val url = format("%sadmin/realms/%s/users/%s", baseUrl, realm, user.getId());
@@ -408,7 +416,7 @@ public class KeycloakServiceImpl implements KeycloakService {
                 return user;
             }
         } catch (RestClientResponseException e) {
-            log.debug("Failed to updated Keycloak user with ID {}: {}", user.getId(), e.getMessage());
+            log.error("Failed to updated Keycloak user with ID {}: {}", user.getId(), e.getMessage());
             return null;
         }
         return null;

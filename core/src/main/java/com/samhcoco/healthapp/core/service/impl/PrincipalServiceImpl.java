@@ -53,9 +53,8 @@ public class PrincipalServiceImpl implements PrincipalService {
             val idToken = keycloakPrincipal.getKeycloakSecurityContext().getIdToken();
 
             try {
-                val id = idToken.getOtherClaims().get("userId");
-                log.debug("PRINCIPAL " + principal + ": TOKEN USER ID = " + id);
-                val userId = String.valueOf("1");
+                val userId = (String) idToken.getOtherClaims().get("userId");
+                log.debug("PRINCIPAL {}: TOKEN USER ID = {}", principal, userId);
                 return parseLong(userId);
             } catch (NumberFormatException e) {
                 log.error("Failed to parse user ID claim from " + principal + ": " + e.getMessage());
@@ -64,6 +63,11 @@ public class PrincipalServiceImpl implements PrincipalService {
         return null;
     }
 
+    /**
+     * Determines whether the current {@link Principal} is an instance of {@link KeycloakPrincipal}.
+     * @param principal {@link Principal}.
+     * @return <code>true</code> if
+     */
     private boolean isKeycloakPrincipal(Principal principal) {
         return principal instanceof KeycloakPrincipal;
     }

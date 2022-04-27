@@ -67,10 +67,24 @@ public interface KeycloakService {
     ResponseEntity<String> createUserAttribute(String claimName, String type, String clientId);
 
 
+    /**
+     * Returns all existing Keycloak clients for the configured Realm.
+     * @return All {@link KeycloakClient}s.
+     */
     List<KeycloakClient> listClients();
 
+    /**
+     * Returns meta-information the given keycloak access token.
+     * @param accessToken Keycloak access token.
+     * @return {@link KeycloakTokenInfo}.
+     */
     ResponseEntity<KeycloakTokenInfo> getTokenInformation(String accessToken);
 
+    /**
+     * Returns the {@link KeycloakUser} with the given
+     * @param id
+     * @return
+     */
     KeycloakUser getUser(String id);
 
     KeycloakUser updateUser(KeycloakUser user);

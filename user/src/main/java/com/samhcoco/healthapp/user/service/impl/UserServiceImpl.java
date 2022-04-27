@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById((long) patientId);
     }
 
+    @Override
     public User register(@NonNull User user) {
         val createdUser = userRepository.save(user);
         val credentials = Credential.builder()
@@ -78,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
         val roles = keycloakService.assignRoles(keycloakUser.getId(), Set.of(KeycloakRoles.USER.name().toLowerCase()));
 
-        if (!roles.getStatusCode().is2xxSuccessful()) {
+        if (isNull(roles) || !roles.getStatusCode().is2xxSuccessful()) {
             log.error("Failed to assign user " + createdUser  + " Keycloak role: 'user'");
             userRepository.deleteById(createdUser.getId());
             keycloakService.delete(keycloakUser.getId());
@@ -124,6 +125,11 @@ public class UserServiceImpl implements UserService {
         return action;
     }
 
+    /**
+     * Sends a verification email to the specified {@link User}.
+     * @param user The {@link User}.
+     * @return {@link Action} that returns the success or failure of the operation.
+     */
     private Action sendVerificationEmail(@NonNull User user) {
         val code = createVerificationCode(user);
         val url = format("%s/%s/user/%s/verify?code=%s", baseUri, version, user.getId(), code.getCode());
@@ -147,6 +153,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Creates a random email confirmation code for the given {@link User}.
+     * @param user {@link User}.
+     * @return Random {@link VerificationCode}.
+     */
     private VerificationCode createVerificationCode(@NonNull User user) {
         return verificationCodeRepository.save(VerificationCode.builder()
                                                 .code(DigestUtils.md5Hex(user.getKeycloakId()))
