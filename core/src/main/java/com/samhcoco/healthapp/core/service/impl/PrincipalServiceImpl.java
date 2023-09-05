@@ -66,7 +66,7 @@ public class PrincipalServiceImpl implements PrincipalService {
     /**
      * Determines whether the current {@link Principal} is an instance of {@link KeycloakPrincipal}.
      * @param principal {@link Principal}.
-     * @return <code>true</code> if
+     * @return <code>true</code> if {@link Principal} is instance of {@link KeycloakPrincipal}.
      */
     private boolean isKeycloakPrincipal(Principal principal) {
         return principal instanceof KeycloakPrincipal;

@@ -204,7 +204,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         try {
             val response = restTemplate.exchange(url, POST, request, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.debug("Keycloak user with ID '%s' successfully assigned roles " + roles);
+                log.debug("Keycloak user with ID '{}' successfully assigned roles: {}", userId, roles);
                 return response;
             }
         } catch (RestClientResponseException e) {
@@ -223,16 +223,18 @@ public class KeycloakServiceImpl implements KeycloakService {
         headers.setBearerAuth(token.getAccessToken());
 
         val request = new HttpEntity<>(null, headers);
-        val response = restTemplate.exchange(url, GET, request, KeycloakRole[].class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            val roles = response.getBody();
-            if (nonNull(roles)) {
-                return Arrays.stream(roles).collect(toList());
+        try {
+            val response = restTemplate.exchange(url, GET, request, KeycloakRole[].class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                val roles = response.getBody();
+                if (nonNull(roles)) {
+                    return Arrays.stream(roles).collect(toList());
+                }
             }
+        } catch (RestClientResponseException e) {
+            val error = e.getMessage();
+            log.error("Failed to list available roles for user with ID '{}' : '{}'", userId, error);
         }
-        val error = response.getStatusCode().getReasonPhrase();
-        log.error("Failed to list available roles for user with ID " + userId + ": " + error);
         return emptyList();
     }
 
@@ -281,7 +283,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         try {
             var response = restTemplate.exchange(url, POST, request, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("Successfully initialized Keycloak client '" + clientName + "'");
+                log.info("Successfully initialized Keycloak client '{}'", clientName);
             }
         } catch (RestClientResponseException e) {
             log.error("Failed to initialize Keycloak client '{}' : '{}'", clientName, e.getMessage());
@@ -315,7 +317,7 @@ public class KeycloakServiceImpl implements KeycloakService {
             }
             return response;
         } catch (RestClientResponseException e) {
-            log.error(format("Failed to initialize Keycloak role '%s' for realm '%s'", USER.name().toLowerCase(), realm));
+            log.error("Failed to initialize Keycloak role '{}' for realm '{}'", USER.name().toLowerCase(), realm);
             return null;
         }
     }
