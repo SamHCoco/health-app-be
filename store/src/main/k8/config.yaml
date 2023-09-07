@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-app-store-config
+data:
+  application.yml: |
+    server:
+      port: 8898
+    spring:
+      application:
+        name: store
+      datasource:
+        url: jdbc:h2:mem:patientDB
+        platform: org.hibernate.dialect.H2Dialect
+      output:
+        ansi:
+          enabled: ALWAYS
+      main:
+        allow-bean-definition-overriding: true
+      mail:
+        host: smtp.gmail.com
+        port: 587
+        username:
+        password:
+        properties:
+          mail:
+            smtp:
+              auth: true
+    #        starttls:
+    #          enable: true
+      h2:
+        console:
+          enabled: true
+      jpa:
+        hibernate:
+          ddl-auto: none
+
+    keycloak:
+      realm: master
+      resource: health-app-be
+      public-client: true
+      ssl-required: external
+      auth-server-url: http://localhost:8080/auth/
+
+    app:
+      keycloak:
+        username: admin
+        password: admin
+        grant-type: password
+        secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: health-app
+    name: health-app-user-service
   datasource:
     url: jdbc:h2:mem:healthAppDB
     platform: org.hibernate.dialect.H2Dialect

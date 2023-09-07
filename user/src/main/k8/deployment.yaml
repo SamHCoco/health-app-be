@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-app-user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-app-user-service
+  template:
+    metadata:
+      labels:
+        app: health-app-user-service
+    spec:
+      containers:
+        - name: health-app-user-service
+          image: health-app-user-service:latest
+          ports:
+            - containerPort: 8899
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-app-user-service
+spec:
+  selector:
+    app: health-app-user-service
+  ports:
+    - protocol: TCP
+      port: 8899
+      targetPort: 8899
+  type: ClusterIP

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-app-store-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-app-store-service
+  template:
+    metadata:
+      labels:
+        app: health-app-store-service
+    spec:
+      containers:
+        - name: health-app-store-service
+          image: health-app-store-service:latest
+          ports:
+            - containerPort: 8898
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-app-store-service
+spec:
+  selector:
+    app: health-app-store-service
+  ports:
+    - protocol: TCP
+      port: 8898
+      targetPort: 8898
+  type: ClusterIP
+
