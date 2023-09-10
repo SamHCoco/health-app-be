@@ -20,6 +20,6 @@ if [ -z "$version" ]; then
 fi
 
 
-echo -n "Building user-service Docker image: version $version \n\n\n"
+echo -n "Building spring-cloud-gateway-service Docker image: version $version"
 
-docker build -t health-app-user-service:$version .
+docker build -t health-app-spring-cloud-gateway-service:$version .
