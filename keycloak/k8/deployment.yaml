@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:21.1.1
+          args: ["start", "--cache-stack=kubernetes"]
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
+            - name: KC_PROXY
+              value: "edge"
+            - name: jgroups.dns.query
+              value: "keycloak"
+            - name: PROXY_ADDRESS_FORWARDING
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HTTP_RELATIVE_PATH
+              value: "/auth"
+#            - name: KC_HOSTNAME_URL
+#              value: "https://domain-name.com/keycloak/auth/"
+#            - name: KC_HOSTNAME_ADMIN_URL
+#              value: "https://domain-name.com/keycloak/auth/"
+            - name: KC_DB
+              value: "mysql"
+            - name: KC_DB_URL
+              value: "jdbc:mysql://mysql-headless-service/k8"
+            - name: KC_DB_URL_HOST
+              value: "mysql"
+            - name: KC_DB_URL_PORT
+              value: "3306"
+            - name: KC_DB_URL_DATABASE
+              value: "keycloak"
+            - name: KC_DB_USERNAME
+              value: "root"
+            - name: KC_DB_PASSWORD
+              value: "admin"
+
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: jgroups
+              containerPort: 7600
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: keycloak
+  type: ClusterIP
+  clusterIP: None
+
+
+#1. jgroups.dns.query: keycloak
+#  (This is the headless service name that we created in service.yaml.
+#
+#2. KC_HTTP_RELATIVE_PATH: /auth
+#  (on this path we will open our keycloak home page)
+#
+#3. KC_HOSTNAME_URL: https://domain-name.com/keycloak/auth/
+#  (I am using ingress path based routing which I will explain below as a result of which I have given /keycloak after my domain name)
+#
+#4. KC_DB: mysql
+#  (You will need to deploy any database so that data would be secure even if it is deleted)
+#
+#5. KC_DB_URL: jdbc:mysql://mysql/keycloak
+#  (The value if of the format jdbc:mysql://<your-mysql-service-name>/<database>,
+#  Note:- I have already created keycloak database in mysql)
+#
+#  All other env variabes are self-explainatory

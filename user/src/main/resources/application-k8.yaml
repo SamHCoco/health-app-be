@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: health-app-user-service
+  datasource:
+    url: jdbc:h2:mem:healthAppDB
+    platform: org.hibernate.dialect.H2Dialect
+    initialization-mode: always
+  output:
+    ansi:
+      enabled: ALWAYS
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+  h2:
+    console:
+      enabled: true
+  jpa:
+    ddl-auto: none
+
+keycloak:
+  realm: master
+  auth-server-url: http://keycloak/auth/
+  resource: health-app-be
+  ssl-required: external
+  cors: true
+
+app:
+  keycloak:
+    username: admin
+    password: admin
+    grant-type: password
+    secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f
