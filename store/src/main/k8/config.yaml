@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: health-app-store-config
+  namespace: health-app
 data:
   application.yml: |
     server:
@@ -26,8 +27,6 @@ data:
           mail:
             smtp:
               auth: true
-    #        starttls:
-    #          enable: true
       h2:
         console:
           enabled: true
@@ -40,7 +39,7 @@ data:
       resource: health-app-be
       public-client: true
       ssl-required: external
-      auth-server-url: http://localhost:8080/auth/
+      auth-server-url: http://keycloak-service/auth/
 
     app:
       keycloak:

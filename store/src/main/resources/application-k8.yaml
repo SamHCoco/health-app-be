@@ -1,14 +1,18 @@
 spring:
   application:
     name: store
-  datasource:
-    url: jdbc:h2:mem:patientDB
-    platform: org.hibernate.dialect.H2Dialect
   output:
     ansi:
       enabled: ALWAYS
-  profiles:
-    active: k8
+  datasource:
+    url: jdbc:h2:mem:patientDB
+    platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
   main:
     allow-bean-definition-overriding: true
   mail:
@@ -20,14 +24,17 @@ spring:
       mail:
         smtp:
           auth: true
-#        starttls:
-#          enable: true
 
 keycloak:
   realm: master
   resource: health-app-be
   public-client: true
   ssl-required: external
+  auth-server-url: http://keycloak-service:8080/auth/
 
-server:
-  port: 8898
+app:
+  keycloak:
+    username: admin
+    password: admin
+    grant-type: password
+    secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f

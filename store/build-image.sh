@@ -21,5 +21,6 @@ fi
 
 
 echo -n "Building store-service Docker image: version $version"
-
-docker build -t health-app-store-service:$version .
+../mvnw clean install -pl core,store
+sudo docker build -t health-app-store-service:$version .
+docker save health-app-store-service:$version > health-app-store-service.tar
