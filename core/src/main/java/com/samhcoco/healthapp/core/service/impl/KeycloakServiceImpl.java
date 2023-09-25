@@ -45,13 +45,13 @@ public class KeycloakServiceImpl implements KeycloakService {
     @Value("${keycloak.resource}")
     private String clientName;
 
-    @Value("${app.keycloak.username}")
+    @Value("${app.keycloak.username:admin}")
     private String username;
 
-    @Value("${app.keycloak.password}")
+    @Value("${app.keycloak.password:admin}")
     private String password;
 
-    @Value("${app.keycloak.grant-type}")
+    @Value("${app.keycloak.grant-type:password}")
     private String grantType;
 
     @Value("${app.keycloak.secret}")
