@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: health-app-user-service
+  namespace: health-app
 spec:
   replicas: 1
   selector:
@@ -14,7 +15,7 @@ spec:
     spec:
       containers:
         - name: health-app-user-service
-          image: health-app-user-service:latest
+          image: health-app-user-service:1.0.0
           ports:
             - containerPort: 8899
 ---

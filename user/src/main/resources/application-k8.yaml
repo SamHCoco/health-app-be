@@ -1,29 +1,39 @@
+server:
+  port: 9000
+
 spring:
   application:
-    name: health-app-user-service
-  datasource:
-    url: jdbc:h2:mem:healthAppDB
-    platform: org.hibernate.dialect.H2Dialect
-    initialization-mode: always
+    name: user-service
   output:
     ansi:
       enabled: ALWAYS
-  profiles:
-    active: dev
-  main:
-    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:h2:mem:patientDB
+    platform: org.hibernate.dialect.H2Dialect
   h2:
     console:
       enabled: true
   jpa:
-    ddl-auto: none
+    hibernate:
+      ddl-auto: none
+  main:
+    allow-bean-definition-overriding: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
 
 keycloak:
   realm: master
-  auth-server-url: http://keycloak/auth/
   resource: health-app-be
+  public-client: true
   ssl-required: external
-  cors: true
+  auth-server-url: http://keycloak-service:8080/
 
 app:
   keycloak:
@@ -31,3 +41,7 @@ app:
     password: admin
     grant-type: password
     secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f
+
+eureka:
+  client:
+    enabled: false

@@ -45,7 +45,7 @@ spec:
               containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /realms/master
+              path: auth/realms/master
               port: 8080
 ---
 apiVersion: v1

@@ -25,9 +25,9 @@ echo -n "Building store-service Docker image: version $version"
 
 cd ..
 
-./mvnw clean install -pl core,store
+./mvnw clean install -pl core,health
 
-cd store
+cd health
 
 docker rmi health-app-$service:$version
 
@@ -42,5 +42,5 @@ docker rmi health-app-$service:$version
 docker load < health-app-$service.tar
 
 kubectl delete deployment health-app-$service -n health-app
-kubectl apply -f ./src/main/k8/
+kubectl apply -f k8/
 

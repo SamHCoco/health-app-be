@@ -42,7 +42,7 @@ docker rmi health-app-$service:$version
 docker load < health-app-$service.tar
 
 kubectl delete deployment health-app-$service -n health-app
-kubectl apply -f ./src/main/k8/
+kubectl apply -f k8/
 
 sudo rm health-app-$service.tar
 

@@ -9,7 +9,7 @@ spring:
     ansi:
       enabled: ALWAYS
   profiles:
-    active: dev
+    active: k8
   main:
     allow-bean-definition-overriding: true
   h2:
