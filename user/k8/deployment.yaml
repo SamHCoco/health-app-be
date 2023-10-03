@@ -17,7 +17,14 @@ spec:
         - name: health-app-user-service
           image: health-app-user-service:1.0.0
           ports:
-            - containerPort: 8899
+            - containerPort: 9000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: health-app-user-config
 ---
 apiVersion: v1
 kind: Service
@@ -28,6 +35,6 @@ spec:
     app: health-app-user-service
   ports:
     - protocol: TCP
-      port: 8899
-      targetPort: 8899
+      port: 9000
+      targetPort: 9000
   type: ClusterIP

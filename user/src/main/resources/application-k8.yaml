@@ -45,3 +45,9 @@ app:
 eureka:
   client:
     enabled: false
+
+base:
+  uri: http://health-app-user-service:9000
+
+api:
+  version: api/v1
