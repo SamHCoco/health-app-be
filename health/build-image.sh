@@ -21,7 +21,7 @@ if [ -z "$version" ]; then
 fi
 
 
-echo -n "Building store-service Docker image: version $version"
+echo -n "Building health-app-'$service' Docker image: version $version"
 
 cd ..
 
