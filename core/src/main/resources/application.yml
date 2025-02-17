@@ -1,22 +1,27 @@
 spring:
-  application:
-    name: core
-  datasource:
-    url: jdbc:h2:mem:healthAppDB
-    platform: org.hibernate.dialect.H2Dialect
-  profiles:
-    active: dev
   output:
     ansi:
       enabled: ALWAYS
+  application:
+    name: core
   main:
     allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:mysql://${DB_URL:localhost}:3306/healthapp
+    username: ${DB_USER:root}
+    password: ${DB_USER_PASSWORD:admin}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: healthapp
+    url: jdbc:mysql://${DB_URL:localhost}:3306/healthapp
+    user: ${DB_USER:root}
+    password: ${DB_USER_PASSWORD:admin}
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: none
-  h2:
-    console:
-      enabled: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -26,18 +31,21 @@ spring:
       mail:
         smtp:
           auth: true
-#          starttls:
-#            enable: true
+
 
 keycloak:
   realm: master
   resource: health-app-be
   ssl-required: external
   public-client: true
-  enable-cors: true
+  auth-server-url: http://${KEYCLOAK_URL:localhost}:8080/auth/
 
 app:
   keycloak:
-    username: admin
-    password: admin
+    username: ${KEYCLOAK_USER:admin}
+    password: ${KEYCLOAK_USER_PASSWORD:admin}
     grant-type: password
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+
+server:
+  port: 8896

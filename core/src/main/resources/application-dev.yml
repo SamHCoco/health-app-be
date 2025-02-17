@@ -1,5 +1,0 @@
-server:
-  port: 8896
-
-keycloak:
-  auth-server-url: http://localhost:8080/auth/
