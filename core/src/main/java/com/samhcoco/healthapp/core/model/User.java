@@ -1,17 +1,16 @@
 package com.samhcoco.healthapp.core.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.*;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "user")
 @ToString
 @Getter
 @Setter
+@Entity
+@Table(name = "user")
 public class User  {
 
     @Id

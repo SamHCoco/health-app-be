@@ -1,9 +1,7 @@
 package com.samhcoco.healthapp.core.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.*;
-import java.util.Date;
 
 @Getter
 @Setter

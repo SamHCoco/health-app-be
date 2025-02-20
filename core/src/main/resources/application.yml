@@ -31,6 +31,12 @@ spring:
       mail:
         smtp:
           auth: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/auth/realms/projects
+          jwt-set-uri: http://localhost:8080/auth/realms/projects/protocol/openid-connect/certs
 
 
 keycloak:
