@@ -35,8 +35,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/auth/realms/projects
-          jwt-set-uri: http://localhost:8080/auth/realms/projects/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/projects
+          jwt-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/projects/protocol/openid-connect/certs
 
 
 keycloak:
@@ -44,7 +44,7 @@ keycloak:
   resource: health-app-be
   ssl-required: external
   public-client: true
-  auth-server-url: http://${KEYCLOAK_URL:localhost}:8080/auth/
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8080}/auth/
 
 app:
   keycloak:
