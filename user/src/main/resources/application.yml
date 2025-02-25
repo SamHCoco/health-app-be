@@ -1,38 +1,68 @@
 spring:
   application:
-    name: health-app-user-service
-  datasource:
-    url: jdbc:h2:mem:healthAppDB
-    platform: org.hibernate.dialect.H2Dialect
-    initialization-mode: always
+    name: user-service
   output:
     ansi:
       enabled: ALWAYS
-  profiles:
-    active: k8
+  datasource:
+    url: jdbc:mysql://${DB_URL:localhost}:3306/healthapp
+    username: ${DB_USER:root}
+    password: ${DB_USER_PASSWORD:admin}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    flyway:
+      enabled: true
+      locations: classpath:db/migration
+      default-schema: healthapp
+      url: jdbc:mysql://${DB_URL:localhost}:3306/healthapp
+      user: ${DB_USER:root}
+      password: ${DB_USER_PASSWORD:admin}
+    jpa:
+      database-platform: org.hibernate.dialect.MySQL8Dialect
+      hibernate:
+        ddl-auto: none
   main:
     allow-bean-definition-overriding: true
-  h2:
-    console:
-      enabled: true
-  jpa:
-    ddl-auto: none
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/projects
+          jwt-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/projects/protocol/openid-connect/certs
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+
+keycloak:
+  realm: master
+  resource: health-app-be
+  public-client: true
+  ssl-required: external
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8080}/auth/
+
+app:
+  keycloak:
+    username: ${KEYCLOAK_USER:admin}
+    password: ${KEYCLOAK_USER_PASSWORD:admin}
+    grant-type: password
+    secret: ${KEYCLOAK_CLIENT_SECRET}
 
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
-keycloak:
-  realm: master
-  auth-server-url: http://localhost:8080/auth/
-  resource: health-app-be
-  ssl-required: external
-  cors: true
+base:
+  uri: http://localhost:8763/user-service
 
-app:
-  keycloak:
-    username: admin
-    password: admin
-    grant-type: password
-    secret: 1378d4df-1d95-47bf-8864-11794d4a3f8f
+api:
+  version: api/v1
+
+server:
+  port: 8899
+
